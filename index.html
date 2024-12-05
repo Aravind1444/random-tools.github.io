@@ -278,7 +278,6 @@
             transcriptionProgress.style.display = 'flex';
             
             try {
-                // Verify the audio blob
                 console.log("Audio blob size:", audioBlob.size);
                 console.log("Audio blob type:", audioBlob.type);
 
@@ -286,21 +285,16 @@
                     throw new Error("Audio extraction failed - no data received");
                 }
 
-                if (audioBlob.size > 24 * 1024 * 1024) {
-                    const chunks = splitAudioBlob(audioBlob, 24 * 1024 * 1024);
-                    chunkProgress.textContent = `0/${chunks.length}`;
-                    
-                    let fullTranscription = '';
-                    for (let i = 0; i < chunks.length; i++) {
-                        chunkProgress.textContent = `${i + 1}/${chunks.length}`;
-                        const transcription = await sendAudioToGroq(chunks[i]);
-                        fullTranscription += transcription + ' ';
-                        transcriptionDiv.textContent = fullTranscription;
-                    }
-                } else {
-                    chunkProgress.textContent = '1/1';
-                    const transcription = await sendAudioToGroq(audioBlob);
-                    transcriptionDiv.textContent = transcription;
+                const maxChunkSize = 24 * 1024 * 1024; // 24 MB
+                const chunks = splitAudioBlob(audioBlob, maxChunkSize);
+                chunkProgress.textContent = `0/${chunks.length}`;
+                
+                let fullTranscription = '';
+                for (let i = 0; i < chunks.length; i++) {
+                    chunkProgress.textContent = `${i + 1}/${chunks.length}`;
+                    const transcription = await sendAudioToGroq(chunks[i]);
+                    fullTranscription += transcription + ' ';
+                    transcriptionDiv.textContent = fullTranscription;
                 }
                 
                 transcriptionProgress.querySelector('.progress-text').textContent = 'Transcription complete!';
