@@ -132,7 +132,7 @@
                 <label for="fileInput" class="custom-file-upload">
                     Choose File
                 </label>
-                <input type="file" id="fileInput" accept="video/*,audio/*">
+                <input type="file" id="fileInput" accept="video/*,audio/*,.m4a">
             </div>
             <div class="file-info" id="fileInfo"></div>
             <button id="uploadButton" disabled>Upload and Transcribe</button>
@@ -172,7 +172,7 @@
             const file = fileInput.files[0];
             if (file) {
                 const size = (file.size / (1024 * 1024)).toFixed(2);
-                const type = file.type;
+                const type = file.type || 'audio/x-m4a';
                 fileInfo.textContent = `Selected: ${file.name} (${size} MB, ${type})`;
                 uploadButton.disabled = false;
             } else {
@@ -200,7 +200,7 @@
                     const audioBlob = await extractAudioFromVideo(file);
                     audioExtractionProgress.querySelector('.progress-text').textContent = 'Audio extraction complete!';
                     await transcribeAudio(audioBlob);
-                } else if (file.type.startsWith('audio/')) {
+                } else if (file.type.startsWith('audio/') || file.name.toLowerCase().endsWith('.m4a')) {
                     fileProcessingProgress.style.display = 'flex';
                     await transcribeAudio(file);
                 } else {
@@ -342,6 +342,7 @@
                 throw new Error("Failed to transcribe audio chunk");
             }
         }
+        //updated 3
     </script>
 </body>
 </html>
